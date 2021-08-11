@@ -1,21 +1,34 @@
 package com.company;
 
+import java.util.Scanner;
+
 public class Main {
 
     public static void main(String[] args) throws  InterruptedException {
 	MyThread myThread = new MyThread();
 	myThread.start();
 
-	MyThread myThread2 = new MyThread();
-	myThread2.start();
+	Scanner scanner = new Scanner(System.in);
+	scanner.nextLine();
+
+	myThread.shutdown();
     }
 }
 
 class MyThread extends Thread {
-    public void run() {
-        for (int i = 0; i < 100; i++) {
+    private volatile boolean running = true;
 
-            System.out.println("Hello from MyThread " + i);
+    public void run() {
+        while (running) {
+            System.out.println("Hello");
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+    }
+    public void shutdown() {
+        this.running = false;
     }
 }
