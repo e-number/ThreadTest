@@ -1,18 +1,19 @@
 package com.company;
 
 
-import java.util.Random;
-import java.util.concurrent.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
-    private static BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
 
     public static void main(String[] args) throws InterruptedException {
+        ProduserConsumer pc = new ProduserConsumer();
+
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    producer();
+                    pc.produce();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -23,7 +24,7 @@ public class Main {
             @Override
             public void run() {
                 try {
-                    consumer();
+                    pc.consume();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -36,23 +37,40 @@ public class Main {
         thread1.join();
         thread2.join();
     }
+}
 
-    private static void producer() throws InterruptedException {
-        Random random = new Random();
+class ProduserConsumer{
+    private Queue<Integer> queue = new LinkedList<>();
+    private  final int LIMIT = 10;
+    private  Object lock = new Object();
 
-        while (true) {
-            queue.put(random.nextInt(100));
+    public void produce() throws InterruptedException{
+        int value = 0;
+
+        while(true) {
+            synchronized (lock) {
+                while(queue.size() == LIMIT) {
+                    lock.wait();
+                }
+                queue.offer(value++);
+                lock.notify();
+            }
         }
     }
 
-    private static void consumer() throws InterruptedException {
-        Random random = new Random();
-        while (true) {
-            Thread.sleep(100);
-            if (random.nextInt(20) == 5) {
-                System.out.println(queue.take());
+    public void consume() throws InterruptedException{
+        while(true) {
+            synchronized (lock) {
+                while(queue.size() == 0){
+                    lock.wait();
+                }
+
+                int value = queue.poll();
+                System.out.println(value);
                 System.out.println("Queue size is " + queue.size());
+                lock.notify();
             }
+            Thread.sleep(1000);
         }
     }
 }
