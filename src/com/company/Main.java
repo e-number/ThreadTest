@@ -47,7 +47,29 @@ class Worker {
     public void main() {
         long before = System.currentTimeMillis();
 
-        work();
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                work();
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                work();
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         long after = System.currentTimeMillis();
         System.out.println("Program took " + (after - before) + " ms to run");
