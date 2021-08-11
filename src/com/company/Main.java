@@ -16,25 +16,32 @@ public class Main {
 class Worker {
     Random random = new Random();
 
+    Object lock1 = new Object();
+    Object lock2 = new Object();
+
     private List<Integer> list1 = new ArrayList<>();
     private List<Integer> list2 = new ArrayList<>();
 
-    public synchronized void addToList1() {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void addToList1() {
+        synchronized (lock1) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            list1.add(random.nextInt(100));
         }
-        list1.add(random.nextInt(100));
     }
 
-    public synchronized void addToList2() {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void addToList2() {
+        synchronized (lock2) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            list2.add(random.nextInt(100));
         }
-        list2.add(random.nextInt(100));
     }
 
     public void work() {
