@@ -9,8 +9,10 @@ public class Main {
 	    test.doWork();
     }
 
-    public synchronized void increment() {
-        counter++;
+    public void increment() {
+        synchronized (this) {
+            counter++;
+        }
     }
 
     public void doWork() throws InterruptedException {
