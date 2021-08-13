@@ -2,33 +2,42 @@ package com.company;
 
 
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Random random= new Random();
-                for (int i = 0; i < 1_000_000_000; i++) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        System.out.println("Thread was interrupted");
-                        break;
-                    }
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-                    Math.sin(random.nextDouble());
-                }
+        Future<Integer> future = executorService.submit(()-> {
+            System.out.println("Starting");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            System.out.println("Finished");
+
+            Random random = new Random();
+            int randomValue = random.nextInt();
+
+            if(randomValue < 5)
+                throw new Exception("Something bad happened");
+
+            return random.nextInt(10);
         });
 
-        System.out.println("Starting thread");
+        executorService.shutdown();
 
-        thread.start();
-
-        Thread.sleep(1000);
-        thread.interrupt();
-
-        thread.join();
-
-        System.out.println("Thread has finished");
+        int result = 0;
+        try {
+            result = future.get();
+            System.out.println(result);
+        } catch (ExecutionException e) {
+            Throwable ex = e.getCause();
+            System.out.println(ex.getMessage());
+        }
     }
 }
