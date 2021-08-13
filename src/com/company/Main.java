@@ -1,76 +1,52 @@
 package com.company;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Main {
-
     public static void main(String[] args) throws InterruptedException {
-        ProduserConsumer pc = new ProduserConsumer();
+        CountDownLatch countDownLatch = new CountDownLatch(3);
 
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    pc.produce();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-        Thread thread2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    pc.consume();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        for (int i = 0; i < 3; i++) {
+            executorService.submit(new Processor(i, countDownLatch));
+        }
 
-        thread1.start();
-        thread2.start();
+        executorService.shutdown();
 
-        thread1.join();
-        thread2.join();
+        for (int i = 0; i < 3; i++) {
+            Thread.sleep(1000);
+            countDownLatch.countDown();
+        }
     }
 }
 
-class ProduserConsumer{
-    private Queue<Integer> queue = new LinkedList<>();
-    private  final int LIMIT = 10;
-    private  Object lock = new Object();
+class Processor implements Runnable {
+    private int id;
+    private CountDownLatch countDownLatch;
 
-    public void produce() throws InterruptedException{
-        int value = 0;
-
-        while(true) {
-            synchronized (lock) {
-                while(queue.size() == LIMIT) {
-                    lock.wait();
-                }
-                queue.offer(value++);
-                lock.notify();
-            }
-        }
+    public Processor(int id, CountDownLatch countDownLatch) {
+        this.id = id;
+        this.countDownLatch = countDownLatch;
     }
 
-    public void consume() throws InterruptedException{
-        while(true) {
-            synchronized (lock) {
-                while(queue.size() == 0){
-                    lock.wait();
-                }
-
-                int value = queue.poll();
-                System.out.println(value);
-                System.out.println("Queue size is " + queue.size());
-                lock.notify();
-            }
-            Thread.sleep(1000);
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Thread with id " + id + " proceeded");
     }
 }
