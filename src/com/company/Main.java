@@ -1,67 +1,66 @@
 package com.company;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Task task = new Task();
+        ExecutorService executorService = Executors.newFixedThreadPool(200);
 
-        Thread thread1 = new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        task.firstThread();
+        Connection connection = Connection.getConnection();
+        for (int i = 0; i < 200; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                    connection.work();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-        );
+            });
+        }
 
-        Thread thread2 = new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        task.secondThread();
-                    }
-                }
-        );
-
-        thread1.start();
-        thread2.start();
-
-        thread1.join();
-        thread2.join();
-
-        task.showCounter();
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.DAYS);
     }
 }
 
-class Task {
-    private int counter;
-    private Lock lock = new ReentrantLock();
+class Connection {
+    private static Connection connection = new Connection();
+    private int connectionCount;
+    private Semaphore semaphore = new Semaphore(10);
 
-    private void increment() {
-        for (int i = 0; i < 10000; i++) {
-            counter++;
+    private  Connection() {
+
+    }
+
+    public static Connection getConnection() {
+        return connection;
+    }
+
+    public void work() throws  InterruptedException {
+        semaphore.acquire();
+        try {
+            doWork();
+        } finally {
+            semaphore.release();
         }
     }
 
-    public void firstThread() {
-        lock.lock();
-        increment();
-        lock.unlock();
-    }
+    public void doWork() throws InterruptedException {
+        synchronized (this) {
+            connectionCount++;
+            System.out.println(connectionCount);
+        }
 
-    public void secondThread() {
-        lock.lock();
-        increment();
-        lock.unlock();
-    }
+        Thread.sleep(5000);
 
-    public void showCounter() {
-        System.out.println(counter);
+        synchronized (this) {
+            connectionCount--;
+        }
     }
 }
