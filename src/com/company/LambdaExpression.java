@@ -26,11 +26,13 @@ public class LambdaExpression {
 //                }
 //            }
 //        });
-        list.sort((s1, s2) -> {
+
+        Comparator<String> comparator = (s1, s2) -> {
             if (s1.length() > s2.length()) return 1;
-                else if (s1.length() < s2.length()) return -1;
-                else return 0;
-        });
+            else if (s1.length() < s2.length()) return -1;
+            else return 0;
+        };
+        list.sort(comparator);
         System.out.println(list);
     }
 }
