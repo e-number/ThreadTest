@@ -16,15 +16,18 @@ public class LambdaExpression {
     public static void main(String[] args) {
         Runner runner = new Runner();
 
+        int a = 1;
         runner.run(new Executable() {
             @Override
             public int execute(int x, int y) {
-                System.out.println("Hello");
-
+                int a = 2;
                 return x + y;
             }
         });
 
-        runner.run((x, y) -> x + y);
+        runner.run((x, y) -> {
+            int a = 2;
+            return x + y;
+        });
     }
 }
