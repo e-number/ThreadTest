@@ -2,19 +2,13 @@ package com.company;
 
 
 interface Executable {
-    void execute();
+    int execute(int x);
 }
 
 class Runner {
     public void run(Executable e) {
-        e.execute();
-    }
-}
-
-class ExecutableImplementation implements Executable {
-    @Override
-    public void execute() {
-        System.out.println("Hello");
+        int a = e.execute(10);
+        System.out.println(a);
     }
 }
 
@@ -22,15 +16,15 @@ public class LambdaExpression {
     public static void main(String[] args) {
         Runner runner = new Runner();
 
-        runner.run(new ExecutableImplementation());
-
         runner.run(new Executable() {
             @Override
-            public void execute() {
+            public int execute(int x) {
                 System.out.println("Hello");
+
+                return x + 5;
             }
         });
 
-        runner.run(()-> System.out.println("Hello"));
+        runner.run(x -> x + 5);
     }
 }
