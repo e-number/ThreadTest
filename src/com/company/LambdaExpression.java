@@ -1,33 +1,36 @@
 package com.company;
 
 
-interface Executable {
-    int execute(int x, int y);
-}
-
-class Runner {
-    public void run(Executable e) {
-        int a = e.execute(10, 15);
-        System.out.println(a);
-    }
-}
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class LambdaExpression {
     public static void main(String[] args) {
-        Runner runner = new Runner();
+        List<String> list = new ArrayList<>();
 
-        int a = 1;
-        runner.run(new Executable() {
-            @Override
-            public int execute(int x, int y) {
-                int a = 2;
-                return x + y;
-            }
-        });
+        list.add("Hello");
+        list.add("Goodbye");
+        list.add("a");
+        list.add("ab");
 
-        runner.run((x, y) -> {
-            int a = 2;
-            return x + y;
+//        list.sort(new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                if (o1.length() > o2.length()) {
+//                    return 1;
+//                } else if (o1.length() < o2.length()) {
+//                    return -1;
+//                } else {
+//                    return 0;
+//                }
+//            }
+//        });
+        list.sort((s1, s2) -> {
+            if (s1.length() > s2.length()) return 1;
+                else if (s1.length() < s2.length()) return -1;
+                else return 0;
         });
+        System.out.println(list);
     }
 }
