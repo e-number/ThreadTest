@@ -2,37 +2,40 @@ package com.company;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LambdaExpression {
     public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
+        int[] arr = new int[10];
+        List<Integer> list = new ArrayList<>();
 
-        list.add("Hello");
-        list.add("Goodbye");
-        list.add("a");
-        list.add("ab");
+        fillArr(arr);
+        fillList(list);
 
-//        list.sort(new Comparator<String>() {
-//            @Override
-//            public int compare(String o1, String o2) {
-//                if (o1.length() > o2.length()) {
-//                    return 1;
-//                } else if (o1.length() < o2.length()) {
-//                    return -1;
-//                } else {
-//                    return 0;
-//                }
-//            }
-//        });
-
-        Comparator<String> comparator = (s1, s2) -> {
-            if (s1.length() > s2.length()) return 1;
-            else if (s1.length() < s2.length()) return -1;
-            else return 0;
-        };
-        list.sort(comparator);
+        System.out.println(Arrays.toString(arr));
         System.out.println(list);
+
+//        for (int i = 0; i < 10; i++) {
+//            arr[i] = arr[i] * 2;
+//            list.set(i, list.get(i) * 2);
+//        }
+
+        arr = Arrays.stream(arr).map(a -> a * 2).toArray();
+        list = list.stream().map(a -> a * 2).collect(Collectors.toList());
+
+        System.out.println(Arrays.toString(arr));
+        System.out.println(list);
+    }
+
+    private static void fillList(List<Integer> list) {
+        for (int i = 0; i < 10; i++)
+            list.add(i + 1);
+    }
+
+    private static void fillArr(int[] arr) {
+        for (int i = 0; i < 10; i++)
+            arr[i] = i + 1;
     }
 }
