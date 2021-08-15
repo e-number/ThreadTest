@@ -2,12 +2,12 @@ package com.company;
 
 
 interface Executable {
-    int execute(int x);
+    int execute(int x, int y);
 }
 
 class Runner {
     public void run(Executable e) {
-        int a = e.execute(10);
+        int a = e.execute(10, 15);
         System.out.println(a);
     }
 }
@@ -18,13 +18,13 @@ public class LambdaExpression {
 
         runner.run(new Executable() {
             @Override
-            public int execute(int x) {
+            public int execute(int x, int y) {
                 System.out.println("Hello");
 
-                return x + 5;
+                return x + y;
             }
         });
 
-        runner.run(x -> x + 5);
+        runner.run((x, y) -> x + y);
     }
 }
